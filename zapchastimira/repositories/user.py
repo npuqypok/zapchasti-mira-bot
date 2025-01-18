@@ -59,23 +59,15 @@ class UserRepository(BaseRepository):
         stmt = sa.delete(tables.User).where(tables.User.user_id == item_id)
         with self.sessionmaker.begin() as session:
             session.execute(stmt)
+    
+    def get_user_by_phone(self, phone) -> UserDTO | None:
+        stmt = sa.select(tables.User).where(tables.User.phone==phone)
+
+        with self.sessionmaker() as session:
+            result = session.execute(stmt).scalar_one_or_none() # выполняет SQL-запрос.
+            if result is None:
+                return None
+        return UserDTO(phone=result.phone, user_id=result.user_id, tg_uid=result.tg_uid, created_at=result.created_at, updated_at=result.updated_at)
 
 
 user_repository = UserRepository(sessionmaker=get_sessionmaker())
-# tmp = UserDTO(phone="89139911234", tg_uid="ssasq")
-# user_repository.create(tmp)
-
-print(user_repository.get_all())
-
-tmp = user_repository.get_by_id("e17e25c7-f8ec-4912-95b3-8b63ef960658")
-print(tmp)
-tmp.tg_uid = "qwerr"
-user_repository.update("e17e25c7-f8ec-4912-95b3-8b63ef960658", tmp)
-
-tmp = user_repository.get_by_id("e17e25c7-f8ec-4912-95b3-8b63ef960658")
-print(tmp)
-
-user_repository.delete("e17e25c7-f8ec-4912-95b3-8b63ef960658")
-tmp = user_repository.get_by_id("e17e25c7-f8ec-4912-95b3-8b63ef960658")
-print(tmp)
-
