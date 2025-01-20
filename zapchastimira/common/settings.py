@@ -19,3 +19,7 @@ class SQLiteSettings(BaseSettings):
     а также предоставляет удобный способ получения строки подключения к базе данных через свойство dsn.
 
     """
+
+class TelegramSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="TELEGRAM_", extra="ignore", env_file=".env")
+    token: str

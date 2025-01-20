@@ -56,6 +56,17 @@ class Category(Base):
     )  # Обратное отношение
 
 
+class ProductCategory(Base):
+    __tablename__ = "product_category"
+    category_id: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    description: Mapped[str | None]
+
+    products: Mapped[list["Product"]] = relationship(
+        "Product", back_populates="category"
+    )
+    
+
 class Product(Base):
     __tablename__ = "products"
     product_id: Mapped[str] = mapped_column(primary_key=True)
@@ -65,10 +76,20 @@ class Product(Base):
     stock_quantity: Mapped[int]
     page_url: Mapped[str]
 
-    category_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
+    category_id: Mapped[str] = mapped_column(sa.ForeignKey("product_category.category_id"))
 
-    category: Mapped[Category] = relationship("Category", back_populates="products")
+    category: Mapped[ProductCategory] = relationship("ProductCategory", back_populates="products")
 
+
+class PartCategory(Base):
+    __tablename__ = "part_category"
+    category_id: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    description: Mapped[str | None]
+
+    part: Mapped[list["Part"]] = relationship(
+        "Part", back_populates="category"
+    )
 
 class Part(Base):
     __tablename__ = "parts"
@@ -82,8 +103,8 @@ class Part(Base):
     stock_quantity: Mapped[int]
     image_url: Mapped[str | None]  # Ссылка на изображение
 
-    category_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
+    category_id: Mapped[str] = mapped_column(sa.ForeignKey("part_category.category_id"))
 
-    category: Mapped[Category] = relationship(
-        "Category", back_populates="parts"
+    category: Mapped[PartCategory] = relationship(
+        "Category", back_populates="part"
     )  # Обратное отношение
