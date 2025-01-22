@@ -61,6 +61,7 @@ class ProductCategory(Base):
     category_id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str | None]
+    base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
 
     products: Mapped[list["Product"]] = relationship(
         "Product", back_populates="category"
@@ -86,6 +87,7 @@ class PartCategory(Base):
     category_id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str | None]
+    base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
 
     part: Mapped[list["Part"]] = relationship(
         "Part", back_populates="category"

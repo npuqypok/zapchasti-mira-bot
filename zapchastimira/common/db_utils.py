@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine # функция create_engine используется для создания объекта подключения к базе данных.
-from zapchastimira.common.settings import SQLiteSettings # класс используется для получения настроек базы данных, таких как строка подключения.
+from zapchastimira.common.settings import PostgresSettings # класс используется для получения настроек базы данных, таких как строка подключения.
 from sqlalchemy.orm import Session, sessionmaker # объект сессии, который используется для взаимодействия с базой данных, а sessionmaker — это фабрика для создания объектов сессии.
 
 
 def get_sessionmaker() -> sessionmaker[Session]: # функция будет создавать и возвращать фабрику сессий для работы с базой данных.
-	db_settings = SQLiteSettings() # автоматически загружаются настройки из переменных окружения или файла .env, включая строку подключения к базе данных (DSN).
+	db_settings = PostgresSettings() # автоматически загружаются настройки из переменных окружения или файла .env, включая строку подключения к базе данных (DSN).
 	engine = create_engine(db_settings.dsn) # представляет собой соединение с базой данных и используется для выполнения операций с ней.
 	return sessionmaker(bind=engine, autoflush=True, expire_on_commit=False)
 

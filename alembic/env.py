@@ -22,11 +22,11 @@ from zapchastimira.common import tables # noqa: E402
 
 target_metadata = [tables.Base.metadata]
 
-from zapchastimira.common.settings import SQLiteSettings # noqa: E402
+from zapchastimira.common.settings import PostgresSettings # noqa: E402
 
-sqlite_settings = SQLiteSettings() # type: ignore
+postgres_settings = PostgresSettings() # type: ignore
 
-config.set_main_option("sqlalchemy.url", sqlite_settings.dsn)
+config.set_main_option("sqlalchemy.url", postgres_settings.dsn)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
