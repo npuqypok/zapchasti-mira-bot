@@ -1,6 +1,7 @@
 import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 
 class Base(DeclarativeBase):
@@ -48,13 +49,6 @@ class Category(Base):
     name: Mapped[str]
     description: Mapped[str | None]
 
-    products: Mapped[list["Product"]] = relationship(
-        "Product", back_populates="category"
-    )
-    parts: Mapped[list["Part"]] = relationship(
-        "Part", back_populates="category"
-    )  # Обратное отношение
-
 
 class ProductCategory(Base):
     __tablename__ = "product_category"
@@ -62,10 +56,8 @@ class ProductCategory(Base):
     name: Mapped[str]
     description: Mapped[str | None]
     base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
+    # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
 
-    products: Mapped[list["Product"]] = relationship(
-        "Product", back_populates="category"
-    )
     
 
 class Product(Base):
@@ -76,10 +68,9 @@ class Product(Base):
     price: Mapped[float]
     stock_quantity: Mapped[int]
     page_url: Mapped[str]
-
+    # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
+    
     category_id: Mapped[str] = mapped_column(sa.ForeignKey("product_category.category_id"))
-
-    category: Mapped[ProductCategory] = relationship("ProductCategory", back_populates="products")
 
 
 class PartCategory(Base):
@@ -88,10 +79,8 @@ class PartCategory(Base):
     name: Mapped[str]
     description: Mapped[str | None]
     base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
-
-    part: Mapped[list["Part"]] = relationship(
-        "Part", back_populates="category"
-    )
+    # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
+    
 
 class Part(Base):
     __tablename__ = "parts"
@@ -104,9 +93,7 @@ class Part(Base):
     price: Mapped[float]
     stock_quantity: Mapped[int]
     image_url: Mapped[str | None]  # Ссылка на изображение
-
+    search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
+    
     category_id: Mapped[str] = mapped_column(sa.ForeignKey("part_category.category_id"))
 
-    category: Mapped[PartCategory] = relationship(
-        "Category", back_populates="part"
-    )  # Обратное отношение

@@ -14,7 +14,7 @@ from zapchastimira.repositories.base import (
 )  # Импортируем базовый репозиторий
 
 
-@dataclass
+@dataclass(kw_only=True)
 class PartDTO(RepositoryDTO):
     part_id: str
     part_number: str
@@ -51,29 +51,30 @@ class PartRepository(BaseRepository):
                 updated_at=result.updated_at,
             )
 
-    def get_all(self) -> tuple[list[PartDTO], int]:
-        stmt = sa.select(tables.Part)
-        total_stmt = sa.select(sa.func.count("*")).select_from(stmt.subquery())
-
+    def get_all(self, query: str) -> tuple[list[PartDTO], int]:
+        tsquery = " & ".join(query.split())
+        stmt = sa.select(tables.Part).where(
+            tables.Part.search_vector.op("@@")(sa.func.to_tsquery("simple", tsquery))
+        )
         with self.sessionmaker() as session:
-            res = session.execute(stmt).scalars().all()
-            total = session.execute(total_stmt).scalar_one()
+            results = session.execute(stmt).scalars().all()
             return [
                 PartDTO(
-                    part_id=i.part_id,
-                    part_number=i.part_number,
-                    name=i.name,
-                    description=i.description,
-                    brand=i.brand,
-                    compatibility=i.compatibility,
-                    price=i.price,
-                    stock_quantity=i.stock_quantity,
-                    image_url=i.image_url,
-                    created_at=i.created_at,
-                    updated_at=i.updated_at,
+                    part_id=result.part_id,
+                    part_number=result.part_number,
+                    name=result.name,
+                    description=result.description,
+                    brand=result.brand,
+                    compatibility=result.compatibility,
+                    price=result.price,
+                    stock_quantity=result.stock_quantity,
+                    image_url=result.image_url,
+                    created_at=result.created_at,
+                    updated_at=result.updated_at,
                 )
-                for i in res
-            ], total
+                for result in results
+            ], len(results)
+
 
     def create(self, item: PartDTO) -> None:
         tmp = tables.Part(
@@ -116,3 +117,5 @@ class PartRepository(BaseRepository):
 
 # Создание экземпляра репозитория для использования в приложении.
 part_repository = PartRepository(sessionmaker=get_sessionmaker())
+res = part_repository.get_all("фильтр воздушный")
+print(res)
