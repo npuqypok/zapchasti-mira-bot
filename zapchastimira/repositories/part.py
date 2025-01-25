@@ -117,5 +117,3 @@ class PartRepository(BaseRepository):
 
 # Создание экземпляра репозитория для использования в приложении.
 part_repository = PartRepository(sessionmaker=get_sessionmaker())
-res = part_repository.get_all("фильтр воздушный")
-print(res)

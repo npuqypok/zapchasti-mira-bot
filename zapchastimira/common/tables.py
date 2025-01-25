@@ -68,7 +68,7 @@ class Product(Base):
     price: Mapped[float]
     stock_quantity: Mapped[int]
     page_url: Mapped[str]
-    # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
+    search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
     
     category_id: Mapped[str] = mapped_column(sa.ForeignKey("product_category.category_id"))
 

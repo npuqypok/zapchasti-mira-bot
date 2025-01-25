@@ -2,18 +2,18 @@ from dataclasses import dataclass
 import sqlalchemy as sa
 
 from zapchastimira.common import tables
+from zapchastimira.common.db_utils import get_sessionmaker
 from zapchastimira.repositories.base import BaseRepository, RepositoryDTO
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ProductDTO(RepositoryDTO):
     product_id: str | None = None
     name: str
-    description: str | None = None
     price: float
     stock_quantity: int
     category_id: str | None = None
-
+    description: str | None = None
 
 class ProductRepository(BaseRepository):
     def get_by_id(self, item_id: str) -> ProductDTO | None:
@@ -32,13 +32,15 @@ class ProductRepository(BaseRepository):
                 category_id=result.category_id,
             )
 
-    def get_all(self) -> tuple[list[ProductDTO], int]:  # получение всех продуктов
-        stmt = sa.select(tables.Product)
-        total_stmt = sa.select(sa.func.count("*")).select_from(stmt.subquery())
+    def get_all(self, query: str) -> tuple[list[ProductDTO], int]:  # получение всех продуктов
+        tsquery = " & ".join(query.split())
+        stmt = sa.select(tables.Product).where(
+            tables.Product.search_vector.op("@@")(sa.func.to_tsquery("simple", tsquery))
+        )
 
         with self.sessionmaker() as session:
             results = session.execute(stmt).scalars().all()
-            total = session.execute(total_stmt).scalar_one()
+            
             return [
                 ProductDTO(
                     product_id=result.product_id,
@@ -49,7 +51,7 @@ class ProductRepository(BaseRepository):
                     category_id=result.category_id,
                 )
                 for result in results
-            ], total
+            ], len(results)
 
     def create(self, product_dto: ProductDTO) -> None:  # cоздание нового продукта
         new_product = tables.Product(
@@ -85,3 +87,6 @@ class ProductRepository(BaseRepository):
 
         with self.sessionmaker.begin() as session:
             session.execute(stmt)
+
+
+product_repository = ProductRepository(sessionmaker=get_sessionmaker())
