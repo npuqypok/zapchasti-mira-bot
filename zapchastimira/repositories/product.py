@@ -14,6 +14,7 @@ class ProductDTO(RepositoryDTO):
     stock_quantity: int
     category_id: str | None = None
     description: str | None = None
+    page_url: str
 
 class ProductRepository(BaseRepository):
     def get_by_id(self, item_id: str) -> ProductDTO | None:
@@ -30,6 +31,7 @@ class ProductRepository(BaseRepository):
                 price=result.price,
                 stock_quantity=result.stock_quantity,
                 category_id=result.category_id,
+                page_url=result.page_url
             )
 
     def get_all(self, query: str) -> tuple[list[ProductDTO], int]:  # получение всех продуктов
@@ -49,6 +51,7 @@ class ProductRepository(BaseRepository):
                     price=result.price,
                     stock_quantity=result.stock_quantity,
                     category_id=result.category_id,
+                    page_url=result.page_url
                 )
                 for result in results
             ], len(results)
@@ -60,6 +63,7 @@ class ProductRepository(BaseRepository):
             price=product_dto.price,
             stock_quantity=product_dto.stock_quantity,
             category_id=product_dto.category_id,
+            page_url=product_dto.page_url
         )
 
         with self.sessionmaker.begin() as session:
@@ -81,6 +85,7 @@ class ProductRepository(BaseRepository):
             product.price = product_dto.price
             product.stock_quantity = product_dto.stock_quantity
             product.category_id = product_dto.category_id
+            product.page_url=product_dto.page_url
 
     def delete(self, item_id: str) -> None:  # удаление продукта
         stmt = sa.delete(tables.Product).where(tables.Product.product_id == item_id)

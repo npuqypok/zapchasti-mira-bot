@@ -24,7 +24,7 @@ class PartDTO(RepositoryDTO):
     compatibility: str | None = None
     price: float
     stock_quantity: int
-    image_url: str | None = None
+    page_url: str
     created_at: datetime.datetime | None = None
     updated_at: datetime.datetime | None = None
 
@@ -46,9 +46,9 @@ class PartRepository(BaseRepository):
                 compatibility=result.compatibility,
                 price=result.price,
                 stock_quantity=result.stock_quantity,
-                image_url=result.image_url,
                 created_at=result.created_at,
                 updated_at=result.updated_at,
+                page_url=result.image_url
             )
 
     def get_all(self, query: str) -> tuple[list[PartDTO], int]:
@@ -68,9 +68,9 @@ class PartRepository(BaseRepository):
                     compatibility=result.compatibility,
                     price=result.price,
                     stock_quantity=result.stock_quantity,
-                    image_url=result.image_url,
                     created_at=result.created_at,
                     updated_at=result.updated_at,
+                    page_url=result.image_url
                 )
                 for result in results
             ], len(results)
@@ -86,7 +86,7 @@ class PartRepository(BaseRepository):
             compatibility=item.compatibility,
             price=item.price,
             stock_quantity=item.stock_quantity,
-            image_url=item.image_url,
+            image_url=item.page_url
         )
 
         with self.sessionmaker.begin() as session:
@@ -107,7 +107,7 @@ class PartRepository(BaseRepository):
             part.compatibility = item.compatibility
             part.price = item.price
             part.stock_quantity = item.stock_quantity
-            part.image_url = item.image_url
+            part.image_url = item.page_url
 
     def delete(self, item_id: str) -> None:
         stmt = sa.delete(tables.Part).where(tables.Part.part_id == item_id)
