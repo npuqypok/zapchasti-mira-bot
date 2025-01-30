@@ -97,3 +97,16 @@ class Part(Base):
     
     category_id: Mapped[str] = mapped_column(sa.ForeignKey("part_category.category_id"))
 
+class Contact(Base):
+    __tablename__ = "contacts"
+    contact_id: Mapped[str] = mapped_column(primary_key=True)
+    first_name: Mapped[str]
+    last_name: Mapped[str]
+    position: Mapped[str]  # Должность
+    phone: Mapped[str] = mapped_column(unique=True)  # Контактный телефон
+    email: Mapped[str | None]  # Электронная почта (необязательно)
+    description: Mapped[str | None]  # Описание или заметка о контакте
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=sa.func.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=sa.func.now(), onupdate=sa.func.now()
+    )
