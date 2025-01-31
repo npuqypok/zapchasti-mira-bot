@@ -1,17 +1,14 @@
 from pydantic import SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict # используется для создания классов конфигурации, а SettingsConfigDict позволяет настраивать поведение этого класса.
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class SQLiteSettings(BaseSettings):
-    """
-    Будет использовать функциональность Pydantic для управления настройками.
-    """
     model_config = SettingsConfigDict(env_prefix="SQLITE_", extra="ignore", env_file=".env")
     db_name: str
 
     @property
-    def dsn(self) -> str:                   # определяем метод dsn, который возвращает строку (DSN — Data Source Name) для подключения к базе данных SQLite.
-        return f"sqlite:///{self.db_name}"  # формируем строку подключения к базе данных SQLite.
+    def dsn(self) -> str:
+        return f"sqlite:///{self.db_name}"
     
 
     """
@@ -37,5 +34,4 @@ class PostgresSettings(BaseSettings):
     @property
     def dsn(self) -> str:
         return f"postgresql://{self.username}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.db_name}"
-
 

@@ -1,7 +1,7 @@
-from dataclasses import asdict, dataclass # используются для создания классов данных (DTO) и преобразования их в словари.
-from typing import Any, Generic, TypeVar # используются для создания обобщенных классов и типов.
-from abc import ABC, abstractmethod # используются для создания абстрактных базовых классов и определения абстрактных методов.
-from sqlalchemy.orm import Session, sessionmaker # используются для работы с сессиями SQLAlchemy.
+from dataclasses import asdict, dataclass
+from typing import Any, Generic, TypeVar
+from abc import ABC, abstractmethod
+from sqlalchemy.orm import Session, sessionmaker
 import uuid
 
 @dataclass

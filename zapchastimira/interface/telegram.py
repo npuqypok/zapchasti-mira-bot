@@ -3,10 +3,12 @@ from pydantic import BaseModel
 import telebot
 from telebot.types import Message
 from zapchastimira.common.settings import TelegramSettings
+from zapchastimira.common.tables import UserStateEnum
 from zapchastimira.repositories.part import PartDTO
 from zapchastimira.services.search_service import search_by_products
 from zapchastimira.repositories.contact import ContactRepository
 from zapchastimira.common.db_utils import get_sessionmaker
+from zapchastimira.repositories.user import user_repository, UserDTO
 
 settings = TelegramSettings()
 
@@ -14,23 +16,15 @@ API_TOKEN = settings.token
 
 bot = telebot.TeleBot(API_TOKEN)
 
-
-class UserStateEnum(StrEnum):
-    START = "start"
-    SEARCH = "search"
-
-
-user_states = {}
-
-
 # Handle '/start' and '/help'
 @bot.message_handler(commands=["start"])
 def send_welcome(message: Message):
-    user_id = message.from_user.id
-    if user_states.get(user_id) is None:
-        user_states[user_id] = UserStateEnum.START
+    user_id = str(message.from_user.id)
+    user_tmp = user_repository.get_user_by_telegram_id(user_id)
+    if user_tmp is None:
+        user_repository.create(UserDTO(tg_uid=user_id, user_id=user_repository.generate_uuid(), state=UserStateEnum.START))
     else:
-        user_states[user_id] = UserStateEnum.START
+        user_repository.set_state(user_id=user_tmp.user_id, state=UserStateEnum.START)
     bot.reply_to(
         message,
         """
@@ -41,8 +35,18 @@ def send_welcome(message: Message):
 
 @bot.message_handler(commands=["search"])
 def start_search(message: Message):
-    user_id = message.from_user.id
-    user_states[user_id] = UserStateEnum.SEARCH
+    user_id = str(message.from_user.id)
+    user_tmp = user_repository.get_user_by_telegram_id(user_id)
+    if user_tmp is None:
+        bot.reply_to(
+            message,
+            """
+    Чтобы зарегистрироваться нажмите команду /start.
+    """,
+        )
+        return
+    
+    user_repository.set_state(user_id=user_tmp.user_id, state=UserStateEnum.SEARCH)
     bot.reply_to(
         message,
         """
@@ -115,9 +119,18 @@ contact_repository = ContactRepository(sessionmaker=get_sessionmaker())
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message: Message):
-    user_id = message.from_user.id
-    if user_states.get(user_id) == UserStateEnum.SEARCH:
-        # Обработка поиска запчастей и продуктов
+    user_id = str(message.from_user.id)
+    user_tmp = user_repository.get_user_by_telegram_id(user_id)
+    if user_tmp is None:
+        bot.reply_to(
+            message,
+            """
+    Чтобы зарегистрироваться нажмите команду /start.
+    """,
+        )
+        return
+        
+    if user_tmp.state == UserStateEnum.SEARCH:
         result = search_by_products(message.text, user_id)
         if not result:
             bot.reply_to(message, "По вашему запросу ничего не найдено.")
@@ -142,10 +155,10 @@ def handle_message(message: Message):
                     price=i.price,
                     stock_quantity=i.stock_quantity,
                     description=i.description,
-                    url=i.url,
+                    url=i.page_url,
                 )
             result_answer += str(tmp) + "\n\n"
-
+        result_answer += "Чтобы выйти нажмите /start"
         bot.reply_to(message, result_answer)
 
     else:

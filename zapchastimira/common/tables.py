@@ -1,4 +1,5 @@
 import datetime
+from enum import StrEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import TSVECTOR
@@ -9,7 +10,10 @@ class Base(DeclarativeBase):
     updated_at: Mapped[datetime.datetime] = mapped_column(
         server_default=sa.func.now(), onupdate=sa.func.now()
     )
-
+    
+class UserStateEnum(StrEnum):
+    START = "start"
+    SEARCH = "search"
 
 class User(Base):
     """
@@ -22,8 +26,9 @@ class User(Base):
     user_id: Mapped[str] = mapped_column(
         primary_key=True
     )  # это поле является первичным ключом таблицы.
-    phone: Mapped[str] = mapped_column(unique=True)
+    phone: Mapped[str | None]
     tg_uid: Mapped[str | None]
+    state: Mapped[UserStateEnum] = mapped_column(sa.String)
 
 
 class UserCars(Base):
@@ -85,7 +90,7 @@ class PartCategory(Base):
 class Part(Base):
     __tablename__ = "parts"
     part_id: Mapped[str] = mapped_column(primary_key=True)
-    part_number: Mapped[str] = mapped_column(unique=True)  # Уникальный код запчасти
+    part_number: Mapped[str] = mapped_column(unique=True)  
     name: Mapped[str]
     description: Mapped[str | None]
     brand: Mapped[str]  # Бренд запчасти
