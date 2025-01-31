@@ -16,6 +16,7 @@ class ProductDTO(RepositoryDTO):
     description: str | None = None
     page_url: str
 
+
 class ProductRepository(BaseRepository):
     def get_by_id(self, item_id: str) -> ProductDTO | None:
         stmt = sa.select(tables.Product).where(tables.Product.product_id == item_id)
@@ -31,10 +32,10 @@ class ProductRepository(BaseRepository):
                 price=result.price,
                 stock_quantity=result.stock_quantity,
                 category_id=result.category_id,
-                page_url=result.page_url
+                page_url=result.page_url,
             )
 
-    def get_all(self, query: str) -> tuple[list[ProductDTO], int]:  # получение всех продуктов
+    def get_all(self, query: str) -> tuple[list[ProductDTO], int]:
         tsquery = " & ".join(query.split())
         stmt = sa.select(tables.Product).where(
             tables.Product.search_vector.op("@@")(sa.func.to_tsquery("simple", tsquery))
@@ -42,7 +43,7 @@ class ProductRepository(BaseRepository):
 
         with self.sessionmaker() as session:
             results = session.execute(stmt).scalars().all()
-            
+
             return [
                 ProductDTO(
                     product_id=result.product_id,
@@ -51,28 +52,26 @@ class ProductRepository(BaseRepository):
                     price=result.price,
                     stock_quantity=result.stock_quantity,
                     category_id=result.category_id,
-                    page_url=result.page_url
+                    page_url=result.page_url,
                 )
                 for result in results
             ], len(results)
 
-    def create(self, product_dto: ProductDTO) -> None:  # cоздание нового продукта
+    def create(self, product_dto: ProductDTO) -> None:
         new_product = tables.Product(
             name=product_dto.name,
             description=product_dto.description,
             price=product_dto.price,
             stock_quantity=product_dto.stock_quantity,
             category_id=product_dto.category_id,
-            page_url=product_dto.page_url
+            page_url=product_dto.page_url,
         )
 
         with self.sessionmaker.begin() as session:
             session.add(new_product)
             return None
 
-    def update(
-        self, item_id: str, product_dto: ProductDTO
-    ) -> None:  # обновление существующего продукта
+    def update(self, item_id: str, product_dto: ProductDTO) -> None:
         stmt = sa.select(tables.Product).where(tables.Product.product_id == item_id)
 
         with self.sessionmaker() as session:
@@ -85,9 +84,9 @@ class ProductRepository(BaseRepository):
             product.price = product_dto.price
             product.stock_quantity = product_dto.stock_quantity
             product.category_id = product_dto.category_id
-            product.page_url=product_dto.page_url
+            product.page_url = product_dto.page_url
 
-    def delete(self, item_id: str) -> None:  # удаление продукта
+    def delete(self, item_id: str) -> None:
         stmt = sa.delete(tables.Product).where(tables.Product.product_id == item_id)
 
         with self.sessionmaker.begin() as session:

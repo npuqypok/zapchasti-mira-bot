@@ -1,4 +1,4 @@
-from dataclasses import dataclass # используется для упрощения создания классов, которые в основном хранят данные.
+from dataclasses import dataclass
 import datetime
 import sqlalchemy as sa
 
@@ -18,14 +18,21 @@ class UserDTO(RepositoryDTO):
 
 
 class UserRepository(BaseRepository):
-    def get_by_id(self, item_id: str) -> UserDTO | None: # получает пользователя по его уникальному идентификатору (item_id).
-        stmt = sa.select(tables.User).where(tables.User.user_id == item_id) # запрос на выборку пользователя из таблицы User, где поле user_id соответствует переданному идентификатору.
+    def get_by_id(self, item_id: str) -> UserDTO | None:
+        stmt = sa.select(tables.User).where(tables.User.user_id == item_id)
 
         with self.sessionmaker() as session:
-            result = session.execute(stmt).scalar_one_or_none() # выполняет SQL-запрос.
+            result = session.execute(stmt).scalar_one_or_none()
             if result is None:
                 return None
-            return UserDTO(phone=result.phone, user_id=result.user_id, tg_uid=result.tg_uid, created_at=result.created_at, updated_at=result.updated_at, state=result.state)
+            return UserDTO(
+                phone=result.phone,
+                user_id=result.user_id,
+                tg_uid=result.tg_uid,
+                created_at=result.created_at,
+                updated_at=result.updated_at,
+                state=result.state,
+            )
 
     def get_all(self) -> tuple[list[UserDTO], int]:
         stmt = sa.select(tables.User)
@@ -34,19 +41,29 @@ class UserRepository(BaseRepository):
         with self.sessionmaker() as session:
             res = session.execute(stmt).scalars().all()
             total = session.execute(total_stmt).scalar_one()
-            return [UserDTO(phone=i.phone, user_id=i.user_id, tg_uid=i.tg_uid, created_at=i.created_at, updated_at=i.updated_at, state=i.state) for i in res], total
+            return [
+                UserDTO(
+                    phone=i.phone,
+                    user_id=i.user_id,
+                    tg_uid=i.tg_uid,
+                    created_at=i.created_at,
+                    updated_at=i.updated_at,
+                    state=i.state,
+                )
+                for i in res
+            ], total
 
     def create(self, item: UserDTO) -> None:
         tmp = tables.User(
             user_id=item.user_id or self.generate_uuid(),
             phone=item.phone,
             tg_uid=item.tg_uid,
-            state=item.state
+            state=item.state,
         )
 
         with self.sessionmaker.begin() as session:
             session.add(tmp)
-    
+
     def update(self, item_id: str, item: UserDTO) -> None:
         stmt = sa.select(tables.User).where(tables.User.user_id == item_id)
 
@@ -58,7 +75,11 @@ class UserRepository(BaseRepository):
             user.tg_uid = item.tg_uid
 
     def set_state(self, user_id: str, state: tables.UserStateEnum) -> None:
-        stmt = sa.update(tables.User).where(tables.User.user_id == user_id).values(state=state)
+        stmt = (
+            sa.update(tables.User)
+            .where(tables.User.user_id == user_id)
+            .values(state=state)
+        )
 
         with self.sessionmaker.begin() as session:
             session.execute(stmt)
@@ -67,25 +88,38 @@ class UserRepository(BaseRepository):
         stmt = sa.delete(tables.User).where(tables.User.user_id == item_id)
         with self.sessionmaker.begin() as session:
             session.execute(stmt)
-    
+
     def get_user_by_phone(self, phone: str) -> UserDTO | None:
-        stmt = sa.select(tables.User).where(tables.User.phone==phone)
+        stmt = sa.select(tables.User).where(tables.User.phone == phone)
 
         with self.sessionmaker() as session:
-            result = session.execute(stmt).scalar_one_or_none() # выполняет SQL-запрос.
+            result = session.execute(stmt).scalar_one_or_none()
             if result is None:
                 return None
-        return UserDTO(phone=result.phone, user_id=result.user_id, tg_uid=result.tg_uid, created_at=result.created_at, updated_at=result.updated_at, state=result.state)
-    
+        return UserDTO(
+            phone=result.phone,
+            user_id=result.user_id,
+            tg_uid=result.tg_uid,
+            created_at=result.created_at,
+            updated_at=result.updated_at,
+            state=result.state,
+        )
 
     def get_user_by_telegram_id(self, tg_uid: str) -> UserDTO | None:
-        stmt = sa.select(tables.User).where(tables.User.tg_uid==tg_uid)
+        stmt = sa.select(tables.User).where(tables.User.tg_uid == tg_uid)
 
         with self.sessionmaker() as session:
-            result = session.execute(stmt).scalar_one_or_none() # выполняет SQL-запрос.
+            result = session.execute(stmt).scalar_one_or_none()
             if result is None:
                 return None
-        return UserDTO(phone=result.phone, user_id=result.user_id, tg_uid=result.tg_uid, created_at=result.created_at, updated_at=result.updated_at, state=result.state)
+        return UserDTO(
+            phone=result.phone,
+            user_id=result.user_id,
+            tg_uid=result.tg_uid,
+            created_at=result.created_at,
+            updated_at=result.updated_at,
+            state=result.state,
+        )
 
 
 user_repository = UserRepository(sessionmaker=get_sessionmaker())

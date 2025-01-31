@@ -16,13 +16,20 @@ API_TOKEN = settings.token
 
 bot = telebot.TeleBot(API_TOKEN)
 
+
 # Handle '/start' and '/help'
 @bot.message_handler(commands=["start"])
 def send_welcome(message: Message):
     user_id = str(message.from_user.id)
     user_tmp = user_repository.get_user_by_telegram_id(user_id)
     if user_tmp is None:
-        user_repository.create(UserDTO(tg_uid=user_id, user_id=user_repository.generate_uuid(), state=UserStateEnum.START))
+        user_repository.create(
+            UserDTO(
+                tg_uid=user_id,
+                user_id=user_repository.generate_uuid(),
+                state=UserStateEnum.START,
+            )
+        )
     else:
         user_repository.set_state(user_id=user_tmp.user_id, state=UserStateEnum.START)
     bot.reply_to(
@@ -45,7 +52,7 @@ def start_search(message: Message):
     """,
         )
         return
-    
+
     user_repository.set_state(user_id=user_tmp.user_id, state=UserStateEnum.SEARCH)
     bot.reply_to(
         message,
@@ -62,7 +69,7 @@ def get_contact(message: Message):
         bot.reply_to(message, "Контакты не найдены.")
         return
 
-    contact_answer = "Контакты:\n\n"
+    contact_answer = "Контакты:\n"
     for contact in contacts:
         contact_answer += f"""
 Имя: {contact.first_name} {contact.last_name}
@@ -129,7 +136,7 @@ def handle_message(message: Message):
     """,
         )
         return
-        
+
     if user_tmp.state == UserStateEnum.SEARCH:
         result = search_by_products(message.text, user_id)
         if not result:

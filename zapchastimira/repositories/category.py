@@ -26,7 +26,7 @@ class CategoryRepository(BaseRepository):
                 description=result.description,
             )
 
-    def get_all(self) -> tuple[list[CategoryDTO], int]:  # получение всех категорий
+    def get_all(self) -> tuple[list[CategoryDTO], int]:
         stmt = sa.select(tables.Category)
         total_stmt = sa.select(sa.func.count("*")).select_from(stmt.subquery())
 
@@ -42,7 +42,7 @@ class CategoryRepository(BaseRepository):
                 for result in results
             ], total
 
-    def create(self, category_dto: CategoryDTO) -> None:  # создание новой категории
+    def create(self, category_dto: CategoryDTO) -> None:
         new_category = tables.Category(
             name=category_dto.name, description=category_dto.description
         )
@@ -51,9 +51,7 @@ class CategoryRepository(BaseRepository):
             session.add(new_category)
             return None
 
-    def update(
-        self, item_id: str, category_dto: CategoryDTO
-    ) -> None:  # обновление существующей категории
+    def update(self, item_id: str, category_dto: CategoryDTO) -> None:
         stmt = sa.select(tables.Category).where(tables.Category.category_id == item_id)
 
         with self.sessionmaker() as session:
@@ -64,7 +62,7 @@ class CategoryRepository(BaseRepository):
             category.name = category_dto.name
             category.description = category_dto.description
 
-    def delete(self, item_id: str) -> None:  # удаление категории
+    def delete(self, item_id: str) -> None:
         stmt = sa.delete(tables.Category).where(tables.Category.category_id == item_id)
 
         with self.sessionmaker.begin() as session:

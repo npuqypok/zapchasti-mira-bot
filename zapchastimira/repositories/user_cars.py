@@ -1,22 +1,22 @@
 from dataclasses import dataclass
 import sqlalchemy as sa
 
-from zapchastimira.common import tables  # Импортируем таблицы
+from zapchastimira.common import tables
 from zapchastimira.common.db_utils import get_sessionmaker
 from zapchastimira.repositories.base import (
     BaseRepository,
     RepositoryDTO,
-)  # Импортируем базовый репозиторий
+)
 
 
 @dataclass
 class UserCarDTO(RepositoryDTO):
     car_id: str | None = None
-    user_id: str  # ID пользователя, которому принадлежит автомобиль
-    make: str  # Производитель автомобиля
-    model: str  # Модель автомобиля
-    year: int  # Год выпуска автомобиля
-    color: str | None = None  # Цвет автомобиля
+    user_id: str
+    make: str
+    model: str
+    year: int
+    color: str | None = None
 
 
 class UserCarsRepository(BaseRepository):
@@ -89,5 +89,4 @@ class UserCarsRepository(BaseRepository):
             session.execute(stmt)
 
 
-# Создание экземпляра репозитория для использования в приложении.
 user_cars_repository = UserCarsRepository(sessionmaker=get_sessionmaker())

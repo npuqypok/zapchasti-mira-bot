@@ -1,17 +1,17 @@
 from dataclasses import (
     dataclass,
-)  # Используется для упрощения создания классов, которые в основном хранят данные.
+)
 import datetime
 import sqlalchemy as sa
 
-from zapchastimira.common import tables  # Импортируем таблицы
+from zapchastimira.common import tables
 from zapchastimira.common.db_utils import (
     get_sessionmaker,
-)  # Импортируем функцию для получения sessionmaker
+)
 from zapchastimira.repositories.base import (
     BaseRepository,
     RepositoryDTO,
-)  # Импортируем базовый репозиторий
+)
 
 
 @dataclass(kw_only=True)
@@ -48,7 +48,7 @@ class PartRepository(BaseRepository):
                 stock_quantity=result.stock_quantity,
                 created_at=result.created_at,
                 updated_at=result.updated_at,
-                page_url=result.image_url
+                page_url=result.image_url,
             )
 
     def get_all(self, query: str) -> tuple[list[PartDTO], int]:
@@ -70,11 +70,10 @@ class PartRepository(BaseRepository):
                     stock_quantity=result.stock_quantity,
                     created_at=result.created_at,
                     updated_at=result.updated_at,
-                    page_url=result.image_url
+                    page_url=result.image_url,
                 )
                 for result in results
             ], len(results)
-
 
     def create(self, item: PartDTO) -> None:
         tmp = tables.Part(
@@ -86,7 +85,7 @@ class PartRepository(BaseRepository):
             compatibility=item.compatibility,
             price=item.price,
             stock_quantity=item.stock_quantity,
-            image_url=item.page_url
+            image_url=item.page_url,
         )
 
         with self.sessionmaker.begin() as session:
@@ -115,5 +114,4 @@ class PartRepository(BaseRepository):
             session.execute(stmt)
 
 
-# Создание экземпляра репозитория для использования в приложении.
 part_repository = PartRepository(sessionmaker=get_sessionmaker())

@@ -1,37 +1,35 @@
-from sqlalchemy import create_engine # функция create_engine используется для создания объекта подключения к базе данных.
-from zapchastimira.common.settings import PostgresSettings # класс используется для получения настроек базы данных, таких как строка подключения.
-from sqlalchemy.orm import Session, sessionmaker # объект сессии, который используется для взаимодействия с базой данных, а sessionmaker — это фабрика для создания объектов сессии.
+from sqlalchemy import create_engine
+from zapchastimira.common.settings import PostgresSettings
+from sqlalchemy.orm import Session, sessionmaker
+from typing import Generator
 
 
-def get_sessionmaker() -> sessionmaker[Session]: # функция будет создавать и возвращать фабрику сессий для работы с базой данных.
-	db_settings = PostgresSettings() # автоматически загружаются настройки из переменных окружения или файла .env, включая строку подключения к базе данных (DSN).
-	engine = create_engine(db_settings.dsn) # представляет собой соединение с базой данных и используется для выполнения операций с ней.
-	return sessionmaker(bind=engine, autoflush=True, expire_on_commit=False)
-
-"""
-bind=engine: Указывает, что созданный объект сессии будет связан с ранее созданным объектом engine. Это означает, что все операции в этой сессии будут выполняться на указанной базе данных.
-
-autoflush=True: Указывает, что изменения в объекте будут автоматически сбрасываться в базу данных перед выполнением запросов. Это помогает избежать ошибок при чтении данных после их изменения.
-
-expire_on_commit=False: Указывает, что объекты не будут истекать (то есть не будут автоматически загружаться заново из базы данных) после коммита транзакции.
-
-Это может быть полезно для повышения производительности, если вы хотите продолжать работать с измененными объектами после коммита."""
-
-
-"""
-Этот код включает в себя создание сессий для взаимодействия с базой данных и настройку подключения.
-Cоздает функцию get_sessionmaker, которая настраивает и возвращает фабрику сессий для работы с базой данных SQLite.
-Он использует Pydantic для управления настройками и SQLAlchemy для работы с базой данных.
-Функция позволяет легко создавать новые сессии для выполнения операций CRUD (создание, чтение, обновление и удаление) в базе данных.
-
-"""
-
-def get_db():
+def get_sessionmaker() -> sessionmaker[Session]:
     """
-    Генератор для получения сессии базы данных.
+    Создает фабрику сессий SQLAlchemy для подключения к базе данных PostgreSQL.
+
+    Эта функция использует настройки подключения из `PostgresSettings` и
+    создает движок SQLAlchemy. Затем она создает `sessionmaker`,
+    который используется для создания сессий базы данных.
+
+    Returns:
+        sessionmaker[Session]: Фабрика сессий, готовая для создания новых сессий.
     """
-    db = get_sessionmaker()()  # Создаем новую сессию из фабрики.
+    db_settings = PostgresSettings()
+    engine = create_engine(db_settings.dsn)
+    return sessionmaker(bind=engine, autoflush=True, expire_on_commit=False)
+
+
+def get_db() -> Generator[Session, None, None]:
+    """
+    Создает и возвращает сессию базы данных SQLAlchemy.
+
+    Эта функция использует `get_sessionmaker` для создания сессии базы данных.
+    Сессия возвращается в контексте генератора, что позволяет использовать ее в
+    блоке `with`, обеспечивая автоматическое закрытие сессии после использования.
+    """
+    db = get_sessionmaker()()
     try:
-        yield db  # Возвращаем сессию для использования в контексте.
+        yield db
     finally:
-        db.close()  # Закрываем сессию после использования.
+        db.close()
