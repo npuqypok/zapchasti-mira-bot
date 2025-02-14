@@ -20,3 +20,35 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.6"
+mypy = "^1.15.0"
+black = "^25.1.0"
+
+[tool.ruff]
+
+exclude = ["version", "Makefile", "README.md", ".vscode"]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "C",
+    "Q",
+    ]
+ignore = ["B904", "B008", "E902", "F401"]
+
+[tool.mypy]
+
+ignore_missing_imports = true
+follow_imports = "silent"
+namespace_packages = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+warn_redundant_casts = true
+pretty = true
+explicit_package_bases = true

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 import sqlalchemy as sa
 
 from zapchastimira.common import tables
@@ -43,9 +44,7 @@ class CategoryRepository(BaseRepository):
             ], total
 
     def create(self, category_dto: CategoryDTO) -> None:
-        new_category = tables.Category(
-            name=category_dto.name, description=category_dto.description
-        )
+        new_category = tables.Category(name=category_dto.name, description=category_dto.description)
 
         with self.sessionmaker.begin() as session:
             session.add(new_category)

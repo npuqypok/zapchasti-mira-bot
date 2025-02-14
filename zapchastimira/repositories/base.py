@@ -1,8 +1,9 @@
+import uuid
+from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from typing import Any, Generic, TypeVar
-from abc import ABC, abstractmethod
+
 from sqlalchemy.orm import Session, sessionmaker
-import uuid
 
 
 @dataclass

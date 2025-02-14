@@ -1,5 +1,6 @@
-from zapchastimira.repositories.user import user_repository, UserDTO
 from typing import Optional
+
+from zapchastimira.repositories.user import UserDTO, user_repository
 
 
 def create_user(tg_uid: str, phone: str) -> UserDTO:
@@ -26,9 +27,7 @@ def create_user(tg_uid: str, phone: str) -> UserDTO:
     return user
 
 
-def update_user(
-    user_id: str, phone: Optional[str] = None, tg_uid: Optional[str] = None
-) -> None:
+def update_user(user_id: str, phone: Optional[str] = None, tg_uid: Optional[str] = None) -> None:
     """
     Обновляет данные пользователя.
 

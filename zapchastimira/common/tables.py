@@ -1,15 +1,14 @@
 import datetime
 from enum import StrEnum
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=sa.func.now())
-    updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=sa.func.now(), onupdate=sa.func.now()
-    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(server_default=sa.func.now(), onupdate=sa.func.now())
 
 
 class UserStateEnum(StrEnum):
@@ -48,9 +47,7 @@ class ProductCategory(Base):
     category_id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str | None]
-    base_categoty_id: Mapped[str] = mapped_column(
-        sa.ForeignKey("categories.category_id")
-    )
+    base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
     # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
 
 
@@ -64,9 +61,7 @@ class Product(Base):
     page_url: Mapped[str]
     search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
 
-    category_id: Mapped[str] = mapped_column(
-        sa.ForeignKey("product_category.category_id")
-    )
+    category_id: Mapped[str] = mapped_column(sa.ForeignKey("product_category.category_id"))
 
 
 class PartCategory(Base):
@@ -74,9 +69,7 @@ class PartCategory(Base):
     category_id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str | None]
-    base_categoty_id: Mapped[str] = mapped_column(
-        sa.ForeignKey("categories.category_id")
-    )
+    base_categoty_id: Mapped[str] = mapped_column(sa.ForeignKey("categories.category_id"))
     # search_vector: Mapped[TSVECTOR] = mapped_column(TSVECTOR)
 
 
@@ -106,6 +99,4 @@ class Contact(Base):
     email: Mapped[str | None]
     description: Mapped[str | None]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=sa.func.now())
-    updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=sa.func.now(), onupdate=sa.func.now()
-    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(server_default=sa.func.now(), onupdate=sa.func.now())

@@ -1,7 +1,8 @@
+import datetime
 from dataclasses import (
     dataclass,
 )
-import datetime
+
 import sqlalchemy as sa
 
 from zapchastimira.common import tables
@@ -53,9 +54,7 @@ class PartRepository(BaseRepository):
 
     def get_all(self, query: str) -> tuple[list[PartDTO], int]:
         tsquery = " & ".join(query.split())
-        stmt = sa.select(tables.Part).where(
-            tables.Part.search_vector.op("@@")(sa.func.to_tsquery("simple", tsquery))
-        )
+        stmt = sa.select(tables.Part).where(tables.Part.search_vector.op("@@")(sa.func.to_tsquery("simple", tsquery)))
         with self.sessionmaker() as session:
             results = session.execute(stmt).scalars().all()
             return [

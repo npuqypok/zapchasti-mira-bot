@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 import sqlalchemy as sa
 
 from zapchastimira.common import tables

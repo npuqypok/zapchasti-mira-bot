@@ -1,7 +1,9 @@
-from sqlalchemy import create_engine
-from zapchastimira.common.settings import PostgresSettings
-from sqlalchemy.orm import Session, sessionmaker
 from typing import Generator
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
+from zapchastimira.common.settings import PostgresSettings
 
 
 def get_sessionmaker() -> sessionmaker[Session]:

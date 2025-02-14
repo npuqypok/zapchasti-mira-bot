@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 import datetime
+from dataclasses import dataclass
+
 import sqlalchemy as sa
 
 from zapchastimira.common import tables
@@ -75,11 +76,7 @@ class UserRepository(BaseRepository):
             user.tg_uid = item.tg_uid
 
     def set_state(self, user_id: str, state: tables.UserStateEnum) -> None:
-        stmt = (
-            sa.update(tables.User)
-            .where(tables.User.user_id == user_id)
-            .values(state=state)
-        )
+        stmt = sa.update(tables.User).where(tables.User.user_id == user_id).values(state=state)
 
         with self.sessionmaker.begin() as session:
             session.execute(stmt)

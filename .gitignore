@@ -167,3 +167,4 @@ certs/
 notebooks
 .DS_Store
 .local/
+.vscode/

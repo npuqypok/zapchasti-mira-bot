@@ -1,9 +1,11 @@
 import datetime
 from dataclasses import dataclass
+
+import sqlalchemy as sa
+
 from zapchastimira.common import tables
 from zapchastimira.common.db_utils import get_sessionmaker
 from zapchastimira.repositories.base import BaseRepository, RepositoryDTO
-import sqlalchemy as sa
 
 
 @dataclass

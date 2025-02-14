@@ -1,6 +1,7 @@
+from typing import List, Union
+
 from zapchastimira.repositories.part import PartDTO, part_repository
 from zapchastimira.repositories.product import ProductDTO, product_repository
-from typing import List, Union
 
 
 def search_by_products(query: str, user_id: str) -> List[Union[PartDTO, ProductDTO]]:

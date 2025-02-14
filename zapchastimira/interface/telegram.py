@@ -1,14 +1,17 @@
 from enum import StrEnum
-from pydantic import BaseModel
+
 import telebot
+from pydantic import BaseModel
 from telebot.types import Message
+
+from zapchastimira.common.db_utils import get_sessionmaker
 from zapchastimira.common.settings import TelegramSettings
 from zapchastimira.common.tables import UserStateEnum
-from zapchastimira.repositories.part import PartDTO
-from zapchastimira.services.search_service import search_by_products
+from zapchastimira.interface.models import OutputSearchDataPart, OutputSearchDataProduct
 from zapchastimira.repositories.contact import ContactRepository
-from zapchastimira.common.db_utils import get_sessionmaker
-from zapchastimira.repositories.user import user_repository, UserDTO
+from zapchastimira.repositories.part import PartDTO
+from zapchastimira.repositories.user import UserDTO, user_repository
+from zapchastimira.services.search_service import search_by_products
 
 settings = TelegramSettings()
 
@@ -35,7 +38,9 @@ def send_welcome(message: Message):
     bot.reply_to(
         message,
         """
-Привет! Я бот для поиска запчастей и продуктов. Вы можете использовать команду /search для поиска или команду /contact для получения контактов.
+Привет!
+Я бот для поиска запчастей и продуктов.
+Вы можете использовать команду /search для поиска или команду /contact для получения контактов.
 """,
     )
 
@@ -47,18 +52,14 @@ def start_search(message: Message):
     if user_tmp is None:
         bot.reply_to(
             message,
-            """
-    Чтобы зарегистрироваться нажмите команду /start.
-    """,
+            """Чтобы зарегистрироваться нажмите команду /start.""",
         )
         return
 
     user_repository.set_state(user_id=user_tmp.user_id, state=UserStateEnum.SEARCH)
     bot.reply_to(
         message,
-        """
-Теперь вы можете ввести запрос для поиска запчастей или продуктов.
-""",
+        """Теперь вы можете ввести запрос для поиска запчастей или продуктов.""",
     )
 
 
@@ -75,50 +76,10 @@ def get_contact(message: Message):
 Имя: {contact.first_name} {contact.last_name}
 Должность: {contact.position}
 Телефон: {contact.phone}
-Электронная почта: {contact.email or 'Не указана'}
-Описание: {contact.description or 'Не указано'}
+Электронная почта: {contact.email or "Не указана"}
+Описание: {contact.description or "Не указано"}
 """
     bot.reply_to(message, contact_answer)
-
-
-class OutputSearchDataProduct(BaseModel):
-    name: str
-    price: float
-    stock_quantity: int
-    description: str
-    url: str
-
-    def __str__(self):
-        return f"""
-Название товара: {self.name}
-цена: {self.price}
-количество {self.stock_quantity}
-описание: {self.description}
-ссылка: {self.url}
-"""
-
-
-class OutputSearchDataPart(BaseModel):
-    name: str
-    brand: str
-    part_number: str
-    price: float
-    stock_quantity: int
-    description: str
-    url: str
-    compatibility: str
-
-    def __str__(self):
-        return f"""
-Название товара: {self.name}
-цена: {self.price}
-номер запчасти: {self.part_number}
-бренд: {self.brand}
-совместимость: {self.compatibility}
-количество {self.stock_quantity}
-описание: {self.description}
-ссылка: {self.url}
-"""
 
 
 contact_repository = ContactRepository(sessionmaker=get_sessionmaker())
